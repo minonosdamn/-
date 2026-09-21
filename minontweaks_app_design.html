@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>MINON TWEAKS — App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#050506;
+    --panel:#0d0d10;
+    --panel-2:#131318;
+    --border:#20202a;
+    --yellow:#FFE300;
+    --yellow-dim:#e6be00;
+    --text:#f3f4f8;
+    --muted:#8a8a95;
+    --muted-2:#4a4a55;
+    --green:#39ff9e;
+    --red:#ff3b5c;
+    --cpu:#FFE300;
+    --gpu:#FFE300;
+    --ram:#FFE300;
+    --net:#39ff9e;
+    --glow-y: 0 0 6px rgba(255,227,0,.9), 0 0 22px rgba(255,227,0,.5), 0 0 60px rgba(255,227,0,.22);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:
+      radial-gradient(circle at 15% 8%, rgba(255,227,0,0.07), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(167,139,255,0.07), transparent 42%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:22px;
+  }
+  #particles{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.85;}
+  #grid{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35;
+    background-image:
+      linear-gradient(rgba(255,227,0,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,227,0,0.05) 1px, transparent 1px);
+    background-size:42px 42px;
+    mask-image:radial-gradient(circle at 30% 20%, black, transparent 70%);
+  }
+
+  /* ===== APP WINDOW (rounded floating frame) ===== */
+  .app{
+    position:relative;z-index:1;
+    display:flex;
+    width:100%;max-width:1280px;
+    height:100%;max-height:800px;
+    border-radius:22px;
+    overflow:hidden;
+    border:1px solid rgba(255,227,0,.18);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.03),
+      0 30px 90px rgba(0,0,0,.6),
+      0 0 60px rgba(255,227,0,.08),
+      0 0 140px rgba(255,227,0,.05);
+  }
+  @media (max-width:760px){
+    body{padding:0;align-items:stretch;}
+    .app{border-radius:0;max-height:none;height:100vh;flex-direction:column;border:none;}
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar{
+    width:230px;flex:none;
+    background:rgba(10,10,13,0.75);
+    backdrop-filter:blur(14px);
+    border-right:1px solid var(--border);
+    box-shadow: 1px 0 30px rgba(255,227,0,.05);
+    display:flex;flex-direction:column;
+    padding:20px 0;
+  }
+  .brand{
+    padding:0 20px 18px;margin-bottom:12px;
+    border-bottom:1px solid var(--border);
+  }
+  .brand-name{
+    font-size:14px;font-weight:800;color:var(--yellow);
+    letter-spacing:2.5px;
+    text-shadow:var(--glow-y);
+    animation:flicker 6s infinite;
+  }
+  @keyframes flicker{
+    0%,19%,21%,23%,80%,100%{opacity:1;}
+    20%,22%{opacity:.86;}
+  }
+  .brand-tag{font-size:10px;color:var(--muted-2);margin-top:3px;letter-spacing:.5px;}
+  .nav-label{
+    padding:16px 20px 6px;font-size:10px;font-weight:800;
+    color:var(--muted-2);text-transform:uppercase;letter-spacing:1.6px;
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:10px;
+    width:100%;background:none;border:none;
+    padding:10px 20px;margin:0;
+    font-family:inherit;font-size:12.5px;font-weight:600;color:var(--muted);
+    text-align:left;cursor:pointer;position:relative;
+    border-left:3px solid transparent;
+    transition:color .2s ease, background .2s ease, border-color .2s ease;
+  }
+  .nav-item:hover{color:#ddd;background:rgba(255,255,255,0.03);}
+  .nav-item.active{
+    color:#fff;border-left-color:var(--yellow);
+    background:linear-gradient(90deg, rgba(255,227,0,.12), transparent);
+    text-shadow:0 0 10px rgba(255,227,0,.5);
+    box-shadow: inset 3px 0 10px -4px rgba(255,227,0,.6);
+  }
+  .nav-icon{font-size:14px;width:18px;text-align:center;flex:none;}
+
+  .sidebar-foot{margin-top:auto;padding:14px 20px 0;border-top:1px solid var(--border);}
+  .lang-row{display:flex;gap:8px;margin-top:12px;}
+  .lang-btn{
+    flex:1;font-family:inherit;font-size:11px;font-weight:700;
+    padding:7px 0;border-radius:6px;background:var(--panel-2);
+    border:1px solid var(--border);color:var(--muted);cursor:pointer;
+  }
+  .lang-btn.active{background:var(--yellow);color:#111;border-color:var(--yellow);
+    box-shadow:0 0 14px rgba(255,227,0,.55);}
+  .drive-chip{
+    font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;
+  }
+  .drive-chip b{color:var(--yellow);font-weight:700;text-shadow:0 0 8px rgba(255,227,0,.5);}
+
+  /* ===== MAIN ===== */
+  .main-col{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .topbar{
+    height:64px;flex:none;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 28px;
+    background:rgba(8,8,10,0.75);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+    box-shadow:0 1px 30px rgba(255,227,0,.04);
+  }
+  .topbar-title{font-size:16px;font-weight:800;color:#fff;}
+  .topbar-sub{font-size:11.5px;color:var(--muted);margin-top:2px;}
+  .btn{
+    font-family:inherit;font-size:12px;font-weight:700;
+    border-radius:12px;padding:10px 18px;cursor:pointer;border:none;
+    letter-spacing:.2px;transition:transform .15s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary{background:var(--yellow);color:#111;box-shadow:0 0 18px rgba(255,227,0,.4), 0 0 2px rgba(255,227,0,.8);}
+  .btn-primary:hover{background:var(--yellow-dim);transform:translateY(-1px);
+    box-shadow:0 0 26px rgba(255,227,0,.65), 0 0 4px rgba(255,227,0,1);}
+  .btn-ghost{background:var(--panel-2);border:1px solid var(--border);color:#ccc;}
+  .btn-ghost:hover{border-color:var(--yellow);color:var(--yellow);box-shadow:0 0 14px rgba(255,227,0,.25);}
+  .btn-danger{background:rgba(255,59,92,.1);border:1px solid rgba(255,59,92,.5);color:#ff8aa3;}
+  .btn-danger:hover{background:rgba(255,59,92,.2);box-shadow:0 0 14px rgba(255,59,92,.35);}
+  .btn-sm{padding:7px 14px;font-size:11px;}
+
+  .content{flex:1;overflow-y:auto;padding:26px 28px 40px;}
+  .content::-webkit-scrollbar{width:8px;}
+  .content::-webkit-scrollbar-thumb{background:#222;border-radius:4px;}
+
+  .tab-page{display:none;}
+  .tab-page.active{display:block;animation:fadein .4s ease both;}
+  @keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ===== SECTION LABEL ===== */
+  .sec-label{
+    font-size:10.5px;font-weight:800;color:var(--yellow);
+    text-transform:uppercase;letter-spacing:2px;
+    margin:26px 0 12px;padding-bottom:8px;border-bottom:1px solid rgba(255,227,0,.18);
+    text-shadow:0 0 10px rgba(255,227,0,.35);
+  }
+  .sec-label:first-child{margin-top:0;}
+
+  /* ===== TWEAK CARDS ===== */
+  .tweak-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:900px){.tweak-grid{grid-template-columns:1fr;}}
+  .tweak-card{
+    background:linear-gradient(180deg, var(--panel), #0a0a0c);
+    border:1px solid var(--border);border-radius:18px;
+    padding:16px 18px;position:relative;overflow:hidden;
+    transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  }
+  .tweak-card::before{
+    content:"";position:absolute;top:-60%;right:-40%;width:80%;height:80%;
+    background:radial-gradient(circle,rgba(255,227,0,.18),transparent 70%);
+    opacity:0;transition:opacity .3s ease;
+  }
+  .tweak-card::after{
+    content:"";position:absolute;inset:0;border-radius:18px;padding:1px;
+    background:linear-gradient(135deg, rgba(255,227,0,0), rgba(255,227,0,.5), rgba(255,227,0,0));
+    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude;
+    opacity:0; transition:opacity .3s ease; pointer-events:none;
+  }
+  .tweak-card:hover{transform:translateY(-4px);border-color:rgba(255,227,0,.5);
+    box-shadow:0 18px 40px rgba(0,0,0,.5), 0 0 30px rgba(255,227,0,.12);}
+  .tweak-card:hover::before{opacity:1;}
+  .tweak-card:hover::after{opacity:1;}
+  .tweak-card.wide{grid-column:1 / -1;}
+  .tweak-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+  .tweak-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;}
+  .tweak-title{font-size:13.5px;font-weight:700;color:#fff;}
+  .badge{font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+    border-radius:20px;padding:2px 8px;border:1px solid transparent;flex:none;}
+  .badge-safe{color:var(--green);border-color:rgba(57,255,158,.5);background:rgba(57,255,158,.08);
+    box-shadow:0 0 10px rgba(57,255,158,.15);text-shadow:0 0 6px rgba(57,255,158,.5);}
+  .badge-risky{color:var(--red);border-color:rgba(255,59,92,.5);background:rgba(255,59,92,.08);
+    box-shadow:0 0 10px rgba(255,59,92,.15);text-shadow:0 0 6px rgba(255,59,92,.5);}
+  .tweak-desc{font-size:11.5px;color:var(--muted);line-height:1.5;max-width:340px;}
+
+  /* toggle switch */
+  .switch{position:relative;flex:none;width:42px;height:24px;cursor:pointer;}
+  .switch input{opacity:0;width:0;height:0;position:absolute;}
+  .slider{position:absolute;inset:0;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:20px;transition:.2s ease;}
+  .slider::before{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
+    background:#555;transition:.2s ease;}
+  input:checked + .slider{background:rgba(255,227,0,.15);border-color:var(--yellow);
+    box-shadow:0 0 14px rgba(255,227,0,.4), inset 0 0 8px rgba(255,227,0,.15);}
+  input:checked + .slider::before{left:20px;background:var(--yellow);box-shadow:0 0 10px rgba(255,227,0,.9), 0 0 22px rgba(255,227,0,.5);}
+
+  .tweak-actions{display:flex;gap:8px;margin-top:12px;}
+
+  /* ===== HOME ===== */
+  .hw-panel{
+    background:var(--panel);border:1px solid rgba(255,227,0,.2);border-radius:16px;
+    padding:14px 16px;margin-bottom:20px;font-family:'Consolas',monospace;
+    font-size:12.5px;color:var(--yellow);line-height:1.8;
+    box-shadow:0 0 24px rgba(255,227,0,.06), inset 0 0 20px rgba(255,227,0,.03);
+    text-shadow:0 0 6px rgba(255,227,0,.35);
+  }
+  .hw-panel span{color:#777;text-shadow:none;}
+  .dash-grid{display:flex;gap:14px;margin-bottom:16px;flex-wrap:wrap;}
+  .stat-card{flex:1;min-width:150px;background:var(--panel);border:1px solid var(--border);
+    border-radius:18px;padding:18px;text-align:center;transition:box-shadow .25s ease, border-color .25s ease;}
+  .stat-card:hover{border-color:rgba(255,227,0,.35);box-shadow:0 0 26px rgba(255,227,0,.1);}
+  .stat-label{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;}
+  .gauge-wrap{position:relative;width:88px;height:88px;margin:0 auto 6px;}
+  .gauge-svg{width:88px;height:88px;transform:rotate(-90deg);overflow:visible;}
+  .gauge-bg{fill:none;stroke:#1a1a1a;stroke-width:4;}
+  .gauge-fill{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dasharray .5s ease;
+    filter:drop-shadow(0 0 6px currentColor);}
+  .gauge-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:19px;font-weight:800;color:#fff;}
+
+  .dash-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:6px;}
+  .dash-panel{flex:1;min-width:220px;background:var(--panel);border:1px solid var(--border);
+    border-radius:18px;padding:16px 18px;}
+  .dash-panel.wide{flex:1.6;min-width:280px;}
+  .dash-panel-title{font-size:11.5px;color:var(--muted);font-weight:700;margin-bottom:12px;
+    text-transform:uppercase;letter-spacing:.6px;}
+  .temp-val{font-size:30px;font-weight:800;color:#fff;text-shadow:0 0 16px rgba(255,255,255,.15);}
+  .temp-val span{font-size:13px;color:var(--muted);font-weight:600;}
+  .disk-bar-bg{height:7px;background:#161616;border-radius:4px;overflow:hidden;margin:12px 0 8px;
+    box-shadow:inset 0 0 6px rgba(0,0,0,.6);}
+  .disk-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--yellow),#ffb347);
+    box-shadow:0 0 12px rgba(255,227,0,.7);}
+  .disk-info{font-size:11.5px;color:var(--muted);}
+  .quick-stats{list-style:none;}
+  .quick-stats li{display:flex;justify-content:space-between;padding:8px 0;
+    border-bottom:1px solid var(--border);font-size:12px;}
+  .quick-stats li:last-child{border-bottom:none;}
+  .quick-stats .qs-label{color:var(--muted);}
+  .quick-stats .qs-val{color:#fff;font-weight:700;}
+
+  /* ===== MONITOR (resources) ===== */
+  .monitor-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:900px){.monitor-grid{grid-template-columns:1fr;}}
+  .monitor-card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px;
+    transition:border-color .25s ease, box-shadow .25s ease;}
+  .monitor-card:hover{border-color:rgba(255,227,0,.3);box-shadow:0 0 24px rgba(255,227,0,.08);}
+  .monitor-head{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+  .monitor-ic{width:30px;height:30px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .ic-dot{width:9px;height:9px;border-radius:50%;box-shadow:0 0 8px currentColor;}
+  .monitor-name{font-size:11.5px;color:var(--muted);}
+  .monitor-val{font-size:28px;font-weight:800;color:#fff;margin:2px 0 8px;text-shadow:0 0 14px rgba(255,255,255,.12);}
+  .monitor-val .unit{font-size:13px;color:var(--muted);font-weight:600;}
+  .monitor-canvas{width:100%;height:56px;display:block;}
+  .monitor-avg{font-size:10px;color:var(--muted-2);margin-top:6px;}
+
+  .net-panel{background:var(--panel);border:1px solid rgba(255,227,0,.15);border-radius:18px;padding:18px 20px;margin-bottom:16px;
+    box-shadow:0 0 30px rgba(255,227,0,.05);}
+  .net-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .net-head h2{font-size:14px;font-weight:700;color:#fff;}
+  .net-metrics{display:flex;gap:12px;flex-wrap:wrap;}
+  .net-metric{flex:1;min-width:120px;background:var(--panel-2);border:1px solid var(--border);
+    border-radius:14px;padding:16px;text-align:center;transition:border-color .25s ease;}
+  .net-metric:hover{border-color:rgba(255,227,0,.4);}
+  .net-metric-label{font-size:10.5px;color:var(--muted);margin-bottom:8px;}
+  .net-metric-val{font-size:24px;font-weight:800;color:#fff;text-shadow:0 0 12px rgba(255,255,255,.15);}
+  .net-metric-val .unit{font-size:11px;color:var(--muted);}
+  .net-metric-hint{font-size:9.5px;color:var(--muted-2);margin-top:4px;}
+
+  /* ===== SAFETY / LOG STRIP (bottom of Home) ===== */
+  .safety-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:20px;}
+  .safety-card{flex:1;min-width:240px;background:var(--panel);border:1px solid rgba(255,59,92,.2);
+    border-radius:18px;padding:18px 20px;box-shadow:0 0 24px rgba(255,59,92,.05);}
+  .safety-card p{font-size:11.5px;color:var(--muted);line-height:1.6;margin-bottom:12px;}
+  .log-card{flex:1.6;min-width:280px;background:var(--panel);border:1px solid var(--border);
+    border-radius:18px;padding:16px 18px;}
+  #log{height:120px;overflow-y:auto;background:#030303;border:1px solid var(--border);
+    border-radius:12px;padding:10px 12px;font-family:'Consolas',monospace;font-size:11px;color:var(--muted);
+    box-shadow:inset 0 0 20px rgba(0,0,0,.6);}
+  .ok{color:var(--green);text-shadow:0 0 6px rgba(57,255,158,.5);}
+  .warn{color:#ffaa00;text-shadow:0 0 6px rgba(255,170,0,.5);}
+  .err{color:var(--red);text-shadow:0 0 6px rgba(255,59,92,.5);}
+  .info{color:var(--yellow);text-shadow:0 0 6px rgba(255,227,0,.5);}
+
+  /* ===== MOBILE ===== */
+  @media (max-width:760px){
+    .sidebar{
+      width:100%;flex-direction:row;align-items:center;
+      padding:10px 8px;overflow-x:auto;
+      border-right:none;border-bottom:1px solid var(--border);
+      white-space:nowrap;
+    }
+    .brand{border-bottom:none;padding:0 10px;margin-bottom:0;flex:none;}
+    .brand-tag{display:none;}
+    .nav-label{display:none;}
+    .nav-item{width:auto;flex:none;border-left:none;border-bottom:3px solid transparent;
+      padding:8px 12px;border-radius:10px 10px 0 0;}
+    .nav-item.active{background:rgba(255,227,0,.1);border-bottom-color:var(--yellow);
+      box-shadow:none;}
+    .sidebar-foot{display:none;}
+    .main-col{min-width:0;}
+    .topbar{padding:0 16px;}
+    .topbar-title{font-size:14px;}
+    .content{padding:16px;}
+    .dash-grid,.dash-row,.safety-row{flex-direction:column;}
+    .tweak-grid{grid-template-columns:1fr;}
+    .monitor-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+<div id="grid"></div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-name">MINON TWEAKS</div>
+      <div class="brand-tag">Control Panel v2</div>
+    </div>
+
+    <div class="nav-label">Основное</div>
+    <button class="nav-item active" data-tab="home">Главная</button>
+    <button class="nav-item" data-tab="resources">Ресурсы</button>
+
+    <div class="nav-label">Твики</div>
+    <button class="nav-item" data-tab="system">Система</button>
+    <button class="nav-item" data-tab="network">Сеть и Пинг</button>
+    <button class="nav-item" data-tab="gaming">Профиль Игр</button>
+    <button class="nav-item" data-tab="gpu">GPU Tweaks</button>
+    <button class="nav-item" data-tab="debloat">Debloat</button>
+
+    <div class="sidebar-foot">
+      <div class="drive-chip"><span>Диск игры</span><b>D: — SSD</b></div>
+      <div class="lang-row">
+        <button class="lang-btn active">RU</button>
+        <button class="lang-btn">EN</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-col">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="pageTitle">Главная</div>
+        <div class="topbar-sub" id="pageSub">Мониторинг системы в реальном времени</div>
+      </div>
+      <button class="btn btn-primary" id="scanBtn">Сканировать</button>
+    </div>
+
+    <div class="content">
+
+      <!-- HOME -->
+      <section class="tab-page active" id="page-home">
+        <div class="hw-panel">
+          <span>Процессор:</span> AMD Ryzen 5 5600 · <span>Видеокарта:</span> NVIDIA RTX 3060 · <span>Локация игры: Диск</span> D: (SSD)
+        </div>
+
+        <div class="dash-grid">
+          <div class="stat-card">
+            <div class="stat-label">Загрузка CPU</div>
+            <div class="gauge-wrap">
+              <svg class="gauge-svg" viewBox="0 0 36 36">
+                <path class="gauge-bg" d="M18 2.08a15.92 15.92 0 0 1 0 31.84 15.92 15.92 0 0 1 0-31.84"/>
+                <path class="gauge-fill" style="stroke:var(--cpu);color:var(--cpu)" stroke-dasharray="38,100" d="M18 2.08a15.92 15.92 0 0 1 0 31.84 15.92 15.92 0 0 1 0-31.84"/>
+              </svg>
+              <div class="gauge-center">38%</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Загрузка GPU</div>
+            <div class="gauge-wrap">
+              <svg class="gauge-svg" viewBox="0 0 36 36">
+                <path class="gauge-bg" d="M18 2.08a15.92 15.92 0 0 1 0 31.84 15.92 15.92 0 0 1 0-31.84"/>
+                <path class="gauge-fill" style="stroke:var(--gpu);color:var(--gpu)" stroke-dasharray="61,100" d="M18 2.08a15.92 15.92 0 0 1 0 31.84 15.92 15.92 0 0 1 0-31.84"/>
+              </svg>
+              <div class="gauge-center">61%</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Загрузка RAM</div>
+            <div class="gauge-wrap">
+              <svg class="gauge-svg" viewBox="0 0 36 36">
+                <path class="gauge-bg" d="M18 2.08a15.92 15.92 0 0 1 0 31.84 15.92 15.92 0 0 1 0-31.84"/>
+                <path class="gauge-fill" style="stroke:var(--ram);color:var(--ram)" stroke-dasharray="47,100" d="M18 2.08a15.92 15.92 0 0 1 0 31.84 15.92 15.92 0 0 1 0-31.84"/>
+              </svg>
+              <div class="gauge-center">47%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-row">
+          <div class="dash-panel">
+            <div class="dash-panel-title">Температура</div>
+            <div class="temp-val">61<span>°C</span></div>
+          </div>
+          <div class="dash-panel wide">
+            <div class="dash-panel-title">Диск</div>
+            <div class="disk-info">D:\Epic Games\Fortnite — 214 ГБ занято из 512 ГБ</div>
+            <div class="disk-bar-bg"><div class="disk-bar-fill" style="width:42%"></div></div>
+          </div>
+          <div class="dash-panel">
+            <div class="dash-panel-title">Быстрая статистика</div>
+            <ul class="quick-stats">
+              <li><span class="qs-label">Темп. CPU</span><span class="qs-val">54°C</span></li>
+              <li><span class="qs-label">Темп. GPU</span><span class="qs-val">61°C</span></li>
+              <li><span class="qs-label">RAM занято</span><span class="qs-val">11.2 / 16 ГБ</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="safety-row">
+          <div class="safety-card">
+            <div class="dash-panel-title">Безопасность</div>
+            <p>Рекомендуется создать точку восстановления перед применением твиков.</p>
+            <button class="btn btn-primary">Создать точку восст.</button>
+          </div>
+          <div class="log-card">
+            <div class="dash-panel-title">Мониторинг</div>
+            <div id="log">
+              <div class="info">[i] Фоновый анализ запущен...</div>
+              <div class="ok">[+] Состояния тумблеров синхронизированы</div>
+              <div class="ok">[+] Диск игры: D: (SSD)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESOURCES -->
+      <section class="tab-page" id="page-resources">
+        <div class="net-panel">
+          <div class="net-head">
+            <h2>Тест сети</h2>
+            <button class="btn btn-ghost btn-sm">Запустить тест</button>
+          </div>
+          <div class="net-metrics">
+            <div class="net-metric"><div class="net-metric-label">Пинг</div><div class="net-metric-val">14<span class="unit">мс</span></div><div class="net-metric-hint">Меньше — лучше</div></div>
+            <div class="net-metric"><div class="net-metric-label">Скачивание</div><div class="net-metric-val">312<span class="unit">Мбит/с</span></div></div>
+            <div class="net-metric"><div class="net-metric-label">Отправка</div><div class="net-metric-val">87<span class="unit">Мбит/с</span></div></div>
+          </div>
+        </div>
+
+        <div class="monitor-grid">
+          <div class="monitor-card">
+            <div class="monitor-head"><div class="monitor-ic" style="background:rgba(255,227,0,.12)"><span class="ic-dot" style="background:var(--cpu)"></span></div><div class="monitor-name">CPU Usage Monitor</div></div>
+            <div class="monitor-val">38<span class="unit">%</span></div>
+            <canvas class="monitor-canvas" data-color="#ff4d6d" data-seed="1"></canvas>
+            <div class="monitor-avg">Среднее 41%</div>
+          </div>
+          <div class="monitor-card">
+            <div class="monitor-head"><div class="monitor-ic" style="background:rgba(255,227,0,.12)"><span class="ic-dot" style="background:var(--ram)"></span></div><div class="monitor-name">Memory Usage Monitor</div></div>
+            <div class="monitor-val">47<span class="unit">%</span></div>
+            <canvas class="monitor-canvas" data-color="#22b8ff" data-seed="2"></canvas>
+            <div class="monitor-avg">Среднее 45%</div>
+          </div>
+          <div class="monitor-card">
+            <div class="monitor-head"><div class="monitor-ic" style="background:rgba(255,227,0,.12)"><span class="ic-dot" style="background:var(--gpu)"></span></div><div class="monitor-name">Disk Activity Monitor</div></div>
+            <div class="monitor-val">22<span class="unit">%</span></div>
+            <canvas class="monitor-canvas" data-color="#8b7bff" data-seed="3"></canvas>
+            <div class="monitor-avg">Среднее 19%</div>
+          </div>
+          <div class="monitor-card">
+            <div class="monitor-head"><div class="monitor-ic" style="background:rgba(52,211,153,.12)"><span class="ic-dot" style="background:var(--net)"></span></div><div class="monitor-name">Network Usage Monitor</div></div>
+            <div class="monitor-val">64<span class="unit">Мбит/с</span></div>
+            <canvas class="monitor-canvas" data-color="#34d399" data-seed="4"></canvas>
+            <div class="monitor-avg">Среднее 58 Мбит/с</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SYSTEM / NETWORK / GAMING / GPU / DEBLOAT — rendered by JS -->
+      <section class="tab-page" id="page-system"></section>
+      <section class="tab-page" id="page-network"></section>
+      <section class="tab-page" id="page-gaming"></section>
+      <section class="tab-page" id="page-gpu"></section>
+      <section class="tab-page" id="page-debloat"></section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- tab data ---------- */
+const titles = {
+  home:["Главная","Мониторинг системы в реальном времени"],
+  resources:["Системные ресурсы","Мониторинг производительности в реальном времени"],
+  system:["Оптимизация Windows","Системные фиксы для снижения Input Lag"],
+  network:["Сетевые параметры","Твики протоколов для минимизации пинга"],
+  gaming:["Настройки под Fortnite","Приоритеты, движок и RAM для соревновательного Fortnite"],
+  gpu:["GPU Оптимизация","Твики видеокарты для максимальной производительности"],
+  debloat:["Debloat Windows","Отключение лишних служб и приложений"]
+};
+
+const data = {
+  system:[
+    {label:"Базовые твики", items:[
+      {t:"Приоритеты планировщика", d:"Оптимизирует распределение квантов времени процессора.", badge:"safe", on:true},
+      {t:"Отключить MPO (GPU Fix)", d:"Убирает Multi-Plane Overlay — источник микро-фризов.", badge:"safe", on:true},
+      {t:"MSI Mode GPU", d:"Переводит GPU в режим быстрых прерываний.", badge:"safe", on:true},
+      {t:"Таймеры BCD", d:"Отключает HPET и динамические тики для плавного фреймтайма.", badge:"risky", on:false},
+    ]},
+    {label:"Питание и производительность", items:[
+      {t:"High Performance Plan", d:"Переключает план электропитания на Maximum Performance.", badge:"safe", on:true},
+      {t:"Отключить Mitigations", d:"Снимает защиту Spectre/Meltdown. Даёт прирост CPU.", badge:"risky", on:false},
+      {t:"Отключить Windows Update", d:"Останавливает службу автообновлений во время игры.", badge:"risky", on:false},
+      {t:"Game Mode Scheduler", d:"Включает системный Game Mode для приоритизации игр.", badge:"safe", on:true},
+    ]},
+    {label:"Диск и IO", items:[
+      {t:"Prefetch / SuperFetch", d:"Отключает SysMain и предзагрузку (рекомендовано для SSD).", badge:"safe", on:true},
+      {t:"IO Tweaks + Boost", d:"Приоритет дисковых операций для игрового процесса.", badge:"safe", on:false},
+    ]},
+  ],
+  network:[
+    {label:"TCP / IP", items:[
+      {t:"TCP Optimizer (Nagle)", d:"Данные летят на сервер мгновенно без буферизации.", badge:"safe", on:true},
+      {t:"Сетевой троттлинг", d:"Снимает системный лимит на пропускную способность.", badge:"safe", on:true},
+      {t:"Энергосбережение сети", d:"Запрещает сетевой карте засыпать во время игры.", badge:"safe", on:true},
+    ]},
+    {label:"Дополнительно", items:[
+      {t:"Netadapter Processor", d:"Включает RSS и привязку очередей сетевой карты к ядрам CPU.", badge:"safe", on:false},
+      {t:"TCP Autotuning Off", d:"Отключает авто-масштабирование TCP буфера для стабильного пинга.", badge:"risky", on:false},
+      {t:"Сброс DNS + приоритет", d:"Очищает кэш DNS и выставляет приоритет 1.1.1.1 / 8.8.8.8.", action:"Очистить DNS"},
+      {t:"Сброс Winsock", d:"Хард-ресет сетевых протоколов.", badge:"risky", action:"Сброс"},
+    ]},
+  ],
+  gaming:[
+    {label:"Fortnite Engine", items:[
+      {t:"Приоритет Fortnite (High)", d:"Принудительно выдаёт процессу игры максимальный приоритет ЦП.", badge:"safe", on:true},
+      {t:"Стриминг текстур", d:"Оптимизация движка под быстрый диск.", badge:"safe", on:true},
+      {t:"DirectX Tweaks", d:"Оптимизация рендер-квот для стабильного FPS.", badge:"safe", on:false},
+    ]},
+    {label:"Input Tweaks", items:[
+      {t:"Mouse Tweaks", d:"Отключает Enhanced Precision, включает Raw Input фикс.", badge:"safe", on:true},
+      {t:"Keyboard Latency", d:"Снижает задержку ввода с клавиатуры до минимума.", badge:"safe", on:false},
+      {t:"Standby RAM", d:"Очистка кэша памяти перед матчем.", action:"Очистить RAM"},
+    ]},
+    {label:"Engine Tweaks (Advanced)", items:[
+      {t:"Engine.ini оптимизация", d:"Стриминг текстур, анизотропия, асинхронная загрузка — ниже уровня графических слайдеров.", badge:"risky", actions:["Применить","Откатить"]},
+      {t:"Исключить ShaderCompileWorker из АВ", d:"Ускоряет компиляцию шейдеров на 200%+, убирая антивирус из процесса.", badge:"risky", actions:["Исключить","Вернуть"]},
+      {t:"WorkerProcessPriority", d:"Приоритет потока компиляции шейдеров = Normal вместо Low.", badge:"safe", on:false},
+      {t:"Системная диагностика (SFC/DISM)", d:"Чинит повреждённые системные файлы, которые незаметно душат FPS.", action:"Запустить проверку"},
+    ]},
+  ],
+  gpu:[
+    {label:"Nvidia", items:[
+      {t:"Disable P-State", d:"Фиксирует частоту GPU на максимуме, убирая скачки FPS.", badge:"risky", on:false},
+      {t:"Remove Nvidia Telemetry", d:"Удаляет службы слежения NvTelemetry* в фоне.", badge:"safe", on:true},
+      {t:"Disable Preemptions", d:"Убирает прерывания GPU для стабильного фреймтайма.", badge:"risky", on:false},
+      {t:"Latency Tolerance", d:"LatencyToleranceOverride для минимальной задержки GPU.", badge:"safe", on:false},
+    ]},
+    {label:"AMD / Radeon", items:[
+      {t:"Disable AMD Telemetry", d:"Отключает сбор данных AMD User Experience Program.", badge:"safe", on:true},
+      {t:"AMD Startup Clean", d:"Убирает лишние процессы Radeon из автозагрузки.", badge:"safe", action:"Очистить"},
+    ]},
+    {label:"Общие", items:[
+      {t:"Disable HDCP", d:"Отключает проверку HDCP для снижения задержки на дисплее.", badge:"risky", on:false},
+      {t:"Disable Power Gating", d:"Запрещает GPU снижать напряжение в простое.", badge:"risky", on:false},
+    ]},
+  ],
+  debloat:[
+    {label:"Службы", items:[
+      {t:"Службы Windows Update", d:"Отключает Update + Store фоновые службы.", badge:"risky", on:false},
+      {t:"Bluetooth службы", d:"Если не используешь Bluetooth — безопасно отключить.", badge:"safe", on:false},
+      {t:"Print Spooler", d:"Служба печати. Не нужна геймерам.", badge:"safe", on:true},
+      {t:"Remote Services", d:"Remote Registry, Remote Desktop — отключить для безопасности.", badge:"safe", on:true},
+      {t:"WiFi Services (Ethernet)", d:"Отключает WiFi службы если используешь Ethernet кабель.", badge:"safe", on:false},
+      {t:"Лишние службы", d:"Fax, диагностика, поиск. Не нужны для игры.", badge:"safe", on:true},
+    ]},
+    {label:"Автозагрузка и приложения", items:[
+      {t:"Автозагрузка", d:"Открыть системный менеджер автозагрузки.", action:"Открыть"},
+      {t:"Store Apps", d:"Удаляет предустановленные приложения Microsoft Store.", badge:"risky", action:"Удалить"},
+      {t:"Debloat Chrome", d:"Отключает фоновые процессы и телеметрию Chrome.", action:"Применить"},
+      {t:"Temp файлы", d:"Очищает временные файлы системы.", action:"Очистить"},
+    ]},
+  ],
+};
+
+function renderTweaks(){
+  Object.keys(data).forEach(tabId=>{
+    const page = document.getElementById('page-'+tabId);
+    let html = '';
+    data[tabId].forEach(group=>{
+      html += `<div class="sec-label">${group.label}</div><div class="tweak-grid">`;
+      group.items.forEach(it=>{
+        const badge = it.badge ? `<span class="badge badge-${it.badge}">${it.badge==='safe'?'Safe':'Risky'}</span>` : '';
+        let control = '';
+        if(it.actions){
+          control = `<div class="tweak-actions">
+            <button class="btn btn-primary btn-sm">${it.actions[0]}</button>
+            <button class="btn btn-ghost btn-sm">${it.actions[1]}</button>
+          </div>`;
+        } else if(it.action){
+          control = `<div class="tweak-actions"><button class="btn btn-ghost btn-sm">${it.action}</button></div>`;
+        }
+        const toggle = (!it.actions && !it.action) ? `
+          <label class="switch">
+            <input type="checkbox" ${it.on?'checked':''}>
+            <span class="slider"></span>
+          </label>` : '';
+        html += `<div class="tweak-card">
+          <div class="tweak-top">
+            <div>
+              <div class="tweak-title-row"><span class="tweak-title">${it.t}</span>${badge}</div>
+              <div class="tweak-desc">${it.d}</div>
+              ${control}
+            </div>
+            ${toggle}
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    });
+    page.innerHTML = html;
+  });
+}
+renderTweaks();
+
+/* ---------- nav ---------- */
+document.querySelectorAll('.nav-item').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    const id = btn.dataset.tab;
+    document.getElementById('page-'+id).classList.add('active');
+    document.getElementById('pageTitle').textContent = titles[id][0];
+    document.getElementById('pageSub').textContent = titles[id][1];
+  });
+});
+
+/* ---------- toggle glow (delegate) ---------- */
+document.addEventListener('click', e=>{
+  if(e.target.closest('.switch')){ /* native checkbox handles state */ }
+});
+
+/* ---------- mini sparkline charts ---------- */
+function drawSpark(canvas){
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width = canvas.clientWidth * 2;
+  const h = canvas.height = canvas.clientHeight * 2;
+  ctx.scale(1,1);
+  const seed = parseInt(canvas.dataset.seed)||1;
+  let val = 40; const pts=[];
+  for(let i=0;i<40;i++){
+    val += (Math.sin(i*0.5+seed)*6 + (Math.random()-0.5)*10);
+    val = Math.max(10,Math.min(90,val));
+    pts.push(val);
+  }
+  ctx.beginPath();
+  pts.forEach((p,i)=>{
+    const x = (i/(pts.length-1))*w;
+    const y = h - (p/100)*h;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle = canvas.dataset.color;
+  ctx.lineWidth = 3;
+  ctx.lineJoin='round';
+  ctx.stroke();
+  ctx.lineTo(w,h); ctx.lineTo(0,h); ctx.closePath();
+  const grad = ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0, canvas.dataset.color+'55');
+  grad.addColorStop(1, canvas.dataset.color+'00');
+  ctx.fillStyle = grad;
+  ctx.fill();
+}
+window.addEventListener('load', ()=>{
+  document.querySelectorAll('.monitor-canvas').forEach(drawSpark);
+});
+
+/* ---------- ambient particles (subtle) ---------- */
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let w,h,particles;
+function resize(){
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+  const count = Math.floor((w*h)/18000);
+  particles = new Array(count).fill(0).map(()=>({
+    x:Math.random()*w, y:Math.random()*h,
+    r:Math.random()*1.3+0.5,
+    bright:Math.random()<0.15,
+    vx:(Math.random()-0.5)*0.1, vy:(Math.random()-0.5)*0.1
+  }));
+}
+function frame(){
+  ctx.clearRect(0,0,w,h);
+  for(const p of particles){
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0||p.x>w)p.vx*=-1;
+    if(p.y<0||p.y>h)p.vy*=-1;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r*(p.bright?1.8:1),0,Math.PI*2);
+    if(p.bright){
+      ctx.shadowBlur=10; ctx.shadowColor='rgba(255,227,0,0.9)';
+      ctx.fillStyle='rgba(255,227,0,0.55)';
+    } else {
+      ctx.shadowBlur=0;
+      ctx.fillStyle='rgba(255,227,0,0.28)';
+    }
+    ctx.fill();
+  }
+  requestAnimationFrame(frame);
+}
+window.addEventListener('resize', resize);
+resize(); frame();
+</script>
+
+</body>
+</html>
