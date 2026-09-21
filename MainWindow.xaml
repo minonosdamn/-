@@ -1,0 +1,766 @@
+<Window x:Class="MinonTweaks.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MinonTweaks"
+        mc:Ignorable="d"
+        Title="MinonTweaks" Height="800" Width="1280"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="CanResize"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        FontFamily="Segoe UI"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType"
+        WindowStartupLocation="CenterScreen">
+
+    <Border CornerRadius="18"
+            Background="{StaticResource BgBrush}"
+            BorderBrush="{StaticResource YellowBrush}"
+            BorderThickness="1"
+            Margin="14">
+        <Border.Effect>
+            <DropShadowEffect Color="#FFFFE300"
+                               BlurRadius="55"
+                               ShadowDepth="0"
+                               Opacity="0.4"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid IsHitTestVisible="False" ClipToBounds="True">
+                <Ellipse Width="520" Height="520" Fill="{StaticResource YellowBrush}" Opacity="0.07"
+                         HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-220,-220,0,0">
+                    <Ellipse.Effect>
+                        <BlurEffect Radius="140"/>
+                    </Ellipse.Effect>
+                </Ellipse>
+                <Ellipse Width="480" Height="480" Fill="#FFA78BFF" Opacity="0.06"
+                         HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-220,-220">
+                    <Ellipse.Effect>
+                        <BlurEffect Radius="140"/>
+                    </Ellipse.Effect>
+                </Ellipse>
+
+                <Rectangle Opacity="0.4">
+                    <Rectangle.Fill>
+                        <DrawingBrush TileMode="Tile" Viewport="0,0,42,42" ViewportUnits="Absolute">
+                            <DrawingBrush.Drawing>
+                                <GeometryDrawing>
+                                    <GeometryDrawing.Pen>
+                                        <Pen Brush="#12FFE300" Thickness="1"/>
+                                    </GeometryDrawing.Pen>
+                                    <GeometryDrawing.Geometry>
+                                        <GeometryGroup>
+                                            <LineGeometry StartPoint="0,0" EndPoint="42,0"/>
+                                            <LineGeometry StartPoint="0,0" EndPoint="0,42"/>
+                                        </GeometryGroup>
+                                    </GeometryDrawing.Geometry>
+                                </GeometryDrawing>
+                            </DrawingBrush.Drawing>
+                        </DrawingBrush>
+                    </Rectangle.Fill>
+                    <Rectangle.OpacityMask>
+                        <RadialGradientBrush GradientOrigin="0.22,0.12" Center="0.22,0.12" RadiusX="0.55" RadiusY="0.55">
+                            <GradientStop Color="#FF000000" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </RadialGradientBrush>
+                    </Rectangle.OpacityMask>
+                </Rectangle>
+
+                <Canvas x:Name="ParticleCanvas"/>
+            </Grid>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="230"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Background="{StaticResource PanelBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="0,0,1,0"
+                        CornerRadius="18,0,0,18">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,20,0,0">
+
+                            <StackPanel Margin="20,0,0,18">
+                                <TextBlock x:Name="BrandText"
+                                           Text="MINON TWEAKS"
+                                           Foreground="{StaticResource YellowBrush}"
+                                           FontFamily="Arial Black" FontSize="16">
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect Color="#FFFFE300" BlurRadius="14" ShadowDepth="0" Opacity="0.7"/>
+                                    </TextBlock.Effect>
+                                </TextBlock>
+                                <TextBlock Text="Control Panel v2"
+                                           Foreground="{StaticResource MutedBrush}"
+                                           FontSize="10" Margin="0,5,0,0"/>
+                            </StackPanel>
+                            <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Margin="20,0,20,16"/>
+
+                            <TextBlock Text="ОСНОВНОЕ"
+                                   Foreground="{StaticResource Muted2Brush}"
+                                   FontSize="10" FontWeight="Bold"
+                                   Margin="20,0,0,8"/>
+
+                            <Border x:Name="Nav_home" Tag="home" Background="Transparent"
+                                BorderThickness="3,0,0,0" BorderBrush="Transparent"
+                                MouseLeftButtonDown="NavItem_Click" Cursor="Hand">
+                                <TextBlock x:Name="NavText_home" Text="Главная"
+                                       Foreground="White" FontSize="13" Margin="20,8"/>
+                            </Border>
+                            <Border x:Name="Nav_resources" Tag="resources" Background="Transparent"
+                                BorderThickness="3,0,0,0" BorderBrush="Transparent"
+                                MouseLeftButtonDown="NavItem_Click" Cursor="Hand">
+                                <TextBlock x:Name="NavText_resources" Text="Ресурсы"
+                                       Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="20,8"/>
+                            </Border>
+
+                            <TextBlock Text="ТВИКИ"
+                                   Foreground="{StaticResource Muted2Brush}"
+                                   FontSize="10" FontWeight="Bold"
+                                   Margin="20,16,0,8"/>
+
+                            <Border x:Name="Nav_system" Tag="system" Background="Transparent"
+                                BorderThickness="3,0,0,0" BorderBrush="Transparent"
+                                MouseLeftButtonDown="NavItem_Click" Cursor="Hand">
+                                <TextBlock x:Name="NavText_system" Text="Система"
+                                       Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="20,8"/>
+                            </Border>
+                            <Border x:Name="Nav_network" Tag="network" Background="Transparent"
+                                BorderThickness="3,0,0,0" BorderBrush="Transparent"
+                                MouseLeftButtonDown="NavItem_Click" Cursor="Hand">
+                                <TextBlock x:Name="NavText_network" Text="Сеть и Пинг"
+                                       Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="20,8"/>
+                            </Border>
+                            <Border x:Name="Nav_gaming" Tag="gaming" Background="Transparent"
+                                BorderThickness="3,0,0,0" BorderBrush="Transparent"
+                                MouseLeftButtonDown="NavItem_Click" Cursor="Hand">
+                                <TextBlock x:Name="NavText_gaming" Text="Профиль Игр"
+                                       Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="20,8"/>
+                            </Border>
+                            <Border x:Name="Nav_gpu" Tag="gpu" Background="Transparent"
+                                BorderThickness="3,0,0,0" BorderBrush="Transparent"
+                                MouseLeftButtonDown="NavItem_Click" Cursor="Hand">
+                                <TextBlock x:Name="NavText_gpu" Text="GPU Tweaks"
+                                       Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="20,8"/>
+                            </Border>
+                            <Border x:Name="Nav_debloat" Tag="debloat" Background="Transparent"
+                                BorderThickness="3,0,0,0" BorderBrush="Transparent"
+                                MouseLeftButtonDown="NavItem_Click" Cursor="Hand">
+                                <TextBlock x:Name="NavText_debloat" Text="Debloat"
+                                       Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="20,8"/>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- ===== ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА ===== -->
+                        <StackPanel Grid.Row="1" Margin="20,0,20,20">
+                            <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Margin="0,0,0,14"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button x:Name="Btn_LangRu" Grid.Column="0" Content="RU"
+                                        Style="{StaticResource RoundedButtonStyle}"
+                                        Background="{StaticResource YellowBrush}" Foreground="#FF111111"
+                                        FontWeight="Bold" FontSize="12" Padding="0,8" Margin="0,0,4,0"
+                                        Click="LangRu_Click">
+                                    <Button.Effect>
+                                        <DropShadowEffect Color="#FFFFE300" BlurRadius="20" ShadowDepth="0" Opacity="0.5"/>
+                                    </Button.Effect>
+                                </Button>
+                                <Button x:Name="Btn_LangEn" Grid.Column="1" Content="EN"
+                                        Style="{StaticResource RoundedButtonStyle}"
+                                        Background="{StaticResource Panel2Brush}" Foreground="{StaticResource MutedBrush}"
+                                        FontWeight="Bold" FontSize="12" Padding="0,8" Margin="4,0,0,0"
+                                        Click="LangEn_Click"/>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="#BF080808"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="0,0,0,1"
+                            CornerRadius="0,18,0,0"
+                            Padding="28,0,0,0"
+                            MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                        <Grid Height="64">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock x:Name="PageTitleText" Text="Главная"
+                                           Foreground="White" FontSize="16" FontWeight="Bold"/>
+                                <TextBlock x:Name="PageSubtitleText" Text="Мониторинг системы в реальном времени"
+                                           Foreground="{StaticResource MutedBrush}" FontSize="11.5" Margin="0,3,0,0"/>
+                            </StackPanel>
+
+                            <Button Grid.Column="1" Content="Сканировать"
+                                    VerticalAlignment="Center" Margin="0,0,20,0"
+                                    Style="{StaticResource RoundedButtonStyle}"
+                                    Background="{StaticResource YellowBrush}" Foreground="#FF111111"
+                                    FontWeight="Bold" FontSize="12" Padding="20,11"
+                                    Cursor="Hand">
+                                <Button.Effect>
+                                    <DropShadowEffect Color="#FFFFE300" BlurRadius="20" ShadowDepth="0" Opacity="0.5"/>
+                                </Button.Effect>
+                            </Button>
+
+                            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                <Button x:Name="MinimizeButton"
+                                        Content="—"
+                                        Width="40" Height="40"
+                                        Background="Transparent"
+                                        Foreground="{StaticResource MutedBrush}"
+                                        BorderThickness="0"
+                                        Click="MinimizeButton_Click"/>
+                                <Button x:Name="CloseButton"
+                                        Content="✕"
+                                        Width="40" Height="40"
+                                        Background="Transparent"
+                                        Foreground="{StaticResource MutedBrush}"
+                                        BorderThickness="0"
+                                        Click="CloseButton_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="1">
+
+                        <!-- Контейнеры для System/Network/Gaming/GPU/Debloat — наполняются кодом при запуске -->
+                        <ScrollViewer x:Name="SystemContentWrapper" Visibility="Collapsed"
+                                  VerticalScrollBarVisibility="Auto" Padding="28,24,28,30"/>
+                        <ScrollViewer x:Name="NetworkContentWrapper" Visibility="Collapsed"
+                                  VerticalScrollBarVisibility="Auto" Padding="28,24,28,30"/>
+                        <ScrollViewer x:Name="GamingContentWrapper" Visibility="Collapsed"
+                                  VerticalScrollBarVisibility="Auto" Padding="28,24,28,30"/>
+                        <ScrollViewer x:Name="GpuContentWrapper" Visibility="Collapsed"
+                                  VerticalScrollBarVisibility="Auto" Padding="28,24,28,30"/>
+                        <ScrollViewer x:Name="DebloatContentWrapper" Visibility="Collapsed"
+                                  VerticalScrollBarVisibility="Auto" Padding="28,24,28,30"/>
+
+                        <ScrollViewer x:Name="HomeContentWrapper"
+                                  Visibility="Visible"
+                                  VerticalScrollBarVisibility="Auto"
+                                  Padding="28,24,28,30">
+                            <StackPanel>
+
+                                <Border Background="{StaticResource PanelBrush}"
+                                    BorderBrush="#33FFE300"
+                                    BorderThickness="1" CornerRadius="12"
+                                    Padding="16,12" Margin="0,0,0,20">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#FFFFE300" BlurRadius="24" ShadowDepth="0" Opacity="0.15"/>
+                                    </Border.Effect>
+                                    <TextBlock Foreground="{StaticResource YellowBrush}" FontFamily="Consolas" FontSize="12.5">
+                                    <Run x:Name="Lbl_Cpu" Foreground="{StaticResource MutedBrush}" Text="Процессор: "/>
+                                    <Run Text="AMD Ryzen 5 5600"/>
+                                    <Run Text="  ·  "/>
+                                    <Run x:Name="Lbl_Gpu" Foreground="{StaticResource MutedBrush}" Text="Видеокарта: "/>
+                                    <Run Text="NVIDIA RTX 3060"/>
+                                    <Run Text="  ·  "/>
+                                    <Run x:Name="Lbl_GameDrive" Foreground="{StaticResource MutedBrush}" Text="Диск игры: "/>
+                                    <Run Text="D: (SSD)"/>
+                                    </TextBlock>
+                                </Border>
+
+                                <UniformGrid Rows="1" Columns="3" Margin="0,0,0,16">
+
+                                    <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="1" CornerRadius="16" Padding="18" Margin="0,0,7,0"
+                                        Style="{StaticResource HoverGlowStyle}">
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock x:Name="Lbl_CpuUsage" Text="ЗАГРУЗКА CPU" Foreground="{StaticResource MutedBrush}"
+                                                   FontSize="10.5" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                            <Grid Width="88" Height="88">
+                                                <Ellipse Width="76" Height="76" Stroke="#FF1A1A1A" StrokeThickness="10"/>
+                                                <Path Data="M 44,6 A 38,38 0 0,1 70.01,71.7"
+                                                  Stroke="{StaticResource YellowBrush}" StrokeThickness="10"
+                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                                                    <Path.Effect>
+                                                        <DropShadowEffect Color="#FFFFE300" BlurRadius="10" ShadowDepth="0" Opacity="0.7"/>
+                                                    </Path.Effect>
+                                                </Path>
+                                                <TextBlock Text="38%" FontSize="19" FontWeight="Bold" Foreground="White"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="1" CornerRadius="16" Padding="18" Margin="7,0,7,0"
+                                        Style="{StaticResource HoverGlowStyle}">
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock x:Name="Lbl_GpuUsage" Text="ЗАГРУЗКА GPU" Foreground="{StaticResource MutedBrush}"
+                                                   FontSize="10.5" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                            <Grid Width="88" Height="88">
+                                                <Ellipse Width="76" Height="76" Stroke="#FF1A1A1A" StrokeThickness="10"/>
+                                                <Path Data="M 44,6 A 38,38 0 1,1 19.78,73.32"
+                                                  Stroke="{StaticResource YellowBrush}" StrokeThickness="10"
+                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                                                    <Path.Effect>
+                                                        <DropShadowEffect Color="#FFFFE300" BlurRadius="10" ShadowDepth="0" Opacity="0.7"/>
+                                                    </Path.Effect>
+                                                </Path>
+                                                <TextBlock Text="61%" FontSize="19" FontWeight="Bold" Foreground="White"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="1" CornerRadius="16" Padding="18" Margin="7,0,0,0"
+                                        Style="{StaticResource HoverGlowStyle}">
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock x:Name="Lbl_RamUsage" Text="ЗАГРУЗКА RAM" Foreground="{StaticResource MutedBrush}"
+                                                   FontSize="10.5" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                            <Grid Width="88" Height="88">
+                                                <Ellipse Width="76" Height="76" Stroke="#FF1A1A1A" StrokeThickness="10"/>
+                                                <Path Data="M 44,6 A 38,38 0 0,1 51.12,81.32"
+                                                  Stroke="{StaticResource YellowBrush}" StrokeThickness="10"
+                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                                                    <Path.Effect>
+                                                        <DropShadowEffect Color="#FFFFE300" BlurRadius="10" ShadowDepth="0" Opacity="0.7"/>
+                                                    </Path.Effect>
+                                                </Path>
+                                                <TextBlock Text="47%" FontSize="19" FontWeight="Bold" Foreground="White"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </UniformGrid>
+
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1.6*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0" Background="{StaticResource PanelBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                        CornerRadius="16" Padding="18" Margin="0,0,7,0">
+                                        <StackPanel>
+                                            <TextBlock x:Name="Lbl_Temperature" Text="ТЕМПЕРАТУРА" Foreground="{StaticResource MutedBrush}"
+                                                   FontSize="11" FontWeight="Bold" Margin="0,0,0,12"/>
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                                                <TextBlock Text="61" FontSize="30" FontWeight="Bold" Foreground="White"/>
+                                                <TextBlock Text="°C" FontSize="13" Foreground="{StaticResource MutedBrush}"
+                                                       VerticalAlignment="Bottom" Margin="2,0,0,5"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Grid.Column="1" Background="{StaticResource PanelBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                        CornerRadius="16" Padding="18" Margin="7,0,7,0">
+                                        <StackPanel>
+                                            <TextBlock x:Name="Lbl_Disk" Text="ДИСК" Foreground="{StaticResource MutedBrush}"
+                                                   FontSize="11" FontWeight="Bold" Margin="0,0,0,10"/>
+                                            <TextBlock x:Name="Lbl_DiskPath" Text="D:\Epic Games\Fortnite — 214 ГБ занято из 512 ГБ"
+                                                   Foreground="{StaticResource MutedBrush}" FontSize="11.5" Margin="0,0,0,10"/>
+                                            <Grid Height="7">
+                                                <Border Background="#FF161616" CornerRadius="4"/>
+                                                <Grid HorizontalAlignment="Left">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="42*"/>
+                                                        <ColumnDefinition Width="58*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0" CornerRadius="4" Width="150">
+                                                        <Border.Background>
+                                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                                <GradientStop Color="{StaticResource YellowColor}" Offset="0"/>
+                                                                <GradientStop Color="#FFFFB347" Offset="1"/>
+                                                            </LinearGradientBrush>
+                                                        </Border.Background>
+                                                        <Border.Effect>
+                                                            <DropShadowEffect Color="#FFFFE300" BlurRadius="10" ShadowDepth="0" Opacity="0.6"/>
+                                                        </Border.Effect>
+                                                    </Border>
+                                                </Grid>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Grid.Column="2" Background="{StaticResource PanelBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                        CornerRadius="16" Padding="18" Margin="7,0,0,0">
+                                        <StackPanel>
+                                            <TextBlock x:Name="Lbl_QuickStats" Text="БЫСТРАЯ СТАТИСТИКА" Foreground="{StaticResource MutedBrush}"
+                                                   FontSize="11" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock x:Name="Lbl_TempCpu" Grid.Column="0" Text="Темп. CPU" Foreground="{StaticResource MutedBrush}" FontSize="12"/>
+                                                <TextBlock Grid.Column="1" Text="54°C" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                            </Grid>
+                                            <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Margin="0,0,0,8"/>
+
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock x:Name="Lbl_TempGpu" Grid.Column="0" Text="Темп. GPU" Foreground="{StaticResource MutedBrush}" FontSize="12"/>
+                                                <TextBlock Grid.Column="1" Text="61°C" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                            </Grid>
+                                            <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Margin="0,0,0,8"/>
+
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock x:Name="Lbl_RamUsed" Grid.Column="0" Text="RAM занято" Foreground="{StaticResource MutedBrush}" FontSize="12"/>
+                                                <TextBlock Grid.Column="1" Text="11.2 / 16 ГБ" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1.6*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0" Background="{StaticResource PanelBrush}"
+                                        BorderBrush="#4DFF3B5C" BorderThickness="1"
+                                        CornerRadius="16" Padding="20,18" Margin="0,0,7,0">
+                                        <StackPanel>
+                                            <TextBlock x:Name="Lbl_Safety" Text="БЕЗОПАСНОСТЬ" Foreground="{StaticResource MutedBrush}"
+                                                   FontSize="11" FontWeight="Bold" Margin="0,0,0,10"/>
+                                            <TextBlock x:Name="Lbl_SafetyDesc" Text="Рекомендуется создать точку восстановления перед применением твиков."
+                                                   Foreground="{StaticResource MutedBrush}" FontSize="11.5"
+                                                   TextWrapping="Wrap" Margin="0,0,0,14"/>
+                                            <Button x:Name="Btn_RestorePoint" Content="Создать точку восст." HorizontalAlignment="Left"
+                                                Style="{StaticResource RoundedButtonStyle}"
+                                                Background="{StaticResource YellowBrush}" Foreground="#FF111111"
+                                                FontWeight="Bold" FontSize="12" Padding="18,10">
+                                                <Button.Effect>
+                                                    <DropShadowEffect Color="#FFFFE300" BlurRadius="18" ShadowDepth="0" Opacity="0.4"/>
+                                                </Button.Effect>
+                                            </Button>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Grid.Column="1" Background="{StaticResource PanelBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                        CornerRadius="16" Padding="18,16" Margin="7,0,0,0">
+                                        <StackPanel>
+                                            <TextBlock x:Name="Lbl_Monitoring" Text="МОНИТОРИНГ" Foreground="{StaticResource MutedBrush}"
+                                                   FontSize="11" FontWeight="Bold" Margin="0,0,0,10"/>
+                                            <Border Background="#FF030303" BorderBrush="{StaticResource BorderBrush}"
+                                                BorderThickness="1" CornerRadius="8" Padding="12,10" Height="120">
+                                                <StackPanel>
+                                                    <TextBlock x:Name="Log_Line1" Text="[i] Фоновый анализ запущен..." Foreground="{StaticResource YellowBrush}"
+                                                           FontFamily="Consolas" FontSize="11" Margin="0,0,0,4"/>
+                                                    <TextBlock x:Name="Log_Line2" Text="[+] Состояния тумблеров синхронизированы" Foreground="{StaticResource GreenBrush}"
+                                                           FontFamily="Consolas" FontSize="11" Margin="0,0,0,4"/>
+                                                    <TextBlock x:Name="Log_Line3" Text="[+] Диск игры: D: (SSD)" Foreground="{StaticResource GreenBrush}"
+                                                           FontFamily="Consolas" FontSize="11"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- ===== РЕСУРСЫ — реальный контент ===== -->
+                        <ScrollViewer x:Name="ResourcesContentWrapper"
+                                  Visibility="Collapsed"
+                                  VerticalScrollBarVisibility="Auto"
+                                  Padding="28,24,28,30">
+                            <StackPanel>
+
+                                <!-- ===== ТЕСТ СЕТИ ===== -->
+                                <Border Background="{StaticResource PanelBrush}"
+                                            BorderBrush="#26FFE300" BorderThickness="1"
+                                            CornerRadius="18" Padding="20,18" Margin="0,0,0,16">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#FFFFE300" BlurRadius="30" ShadowDepth="0" Opacity="0.15"/>
+                                    </Border.Effect>
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock x:Name="Lbl_NetTest" Grid.Column="0" Text="Тест сети" FontSize="14" FontWeight="Bold"
+                                                           Foreground="White" VerticalAlignment="Center"/>
+                                            <Button x:Name="Btn_RunTest" Grid.Column="1" Content="Запустить тест"
+                                                        Style="{StaticResource RoundedButtonStyle}"
+                                                        Background="{StaticResource Panel2Brush}"
+                                                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                                        Foreground="#FFCCCCCC" FontSize="11" FontWeight="Bold"
+                                                        Padding="14,7" Cursor="Hand"/>
+                                        </Grid>
+
+                                        <UniformGrid Rows="1" Columns="3">
+                                            <!-- Пинг -->
+                                            <Border Background="{StaticResource Panel2Brush}" BorderBrush="{StaticResource BorderBrush}"
+                                                        BorderThickness="1" CornerRadius="14" Padding="16" Margin="0,0,6,0"
+                                                        Style="{StaticResource HoverGlowStyle}">
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <TextBlock x:Name="Lbl_Ping" Text="ПИНГ" FontSize="10.5" Foreground="{StaticResource MutedBrush}"
+                                                                   HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <TextBlock Text="14" FontSize="24" FontWeight="Bold" Foreground="White">
+                                                            <TextBlock.Effect>
+                                                                <DropShadowEffect Color="White" BlurRadius="12" ShadowDepth="0" Opacity="0.15"/>
+                                                            </TextBlock.Effect>
+                                                        </TextBlock>
+                                                        <TextBlock x:Name="Lbl_Ms" Text=" мс" FontSize="11" Foreground="{StaticResource MutedBrush}"
+                                                                       VerticalAlignment="Bottom" Margin="2,0,0,3"/>
+                                                    </StackPanel>
+                                                    <TextBlock x:Name="Lbl_LowerBetter" Text="Меньше — лучше" FontSize="9.5" Foreground="{StaticResource Muted2Brush}"
+                                                                   HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <!-- Скачивание -->
+                                            <Border Background="{StaticResource Panel2Brush}" BorderBrush="{StaticResource BorderBrush}"
+                                                        BorderThickness="1" CornerRadius="14" Padding="16" Margin="6,0,6,0"
+                                                        Style="{StaticResource HoverGlowStyle}">
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <TextBlock x:Name="Lbl_Download" Text="СКАЧИВАНИЕ" FontSize="10.5" Foreground="{StaticResource MutedBrush}"
+                                                                   HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <TextBlock Text="312" FontSize="24" FontWeight="Bold" Foreground="White">
+                                                            <TextBlock.Effect>
+                                                                <DropShadowEffect Color="White" BlurRadius="12" ShadowDepth="0" Opacity="0.15"/>
+                                                            </TextBlock.Effect>
+                                                        </TextBlock>
+                                                        <TextBlock x:Name="Lbl_MbpsDownload" Text=" Мбит/с" FontSize="11" Foreground="{StaticResource MutedBrush}"
+                                                                       VerticalAlignment="Bottom" Margin="2,0,0,3"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <!-- Отправка -->
+                                            <Border Background="{StaticResource Panel2Brush}" BorderBrush="{StaticResource BorderBrush}"
+                                                        BorderThickness="1" CornerRadius="14" Padding="16" Margin="6,0,0,0"
+                                                        Style="{StaticResource HoverGlowStyle}">
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <TextBlock x:Name="Lbl_Upload" Text="ОТПРАВКА" FontSize="10.5" Foreground="{StaticResource MutedBrush}"
+                                                                   HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <TextBlock Text="87" FontSize="24" FontWeight="Bold" Foreground="White">
+                                                            <TextBlock.Effect>
+                                                                <DropShadowEffect Color="White" BlurRadius="12" ShadowDepth="0" Opacity="0.15"/>
+                                                            </TextBlock.Effect>
+                                                        </TextBlock>
+                                                        <TextBlock x:Name="Lbl_MbpsUpload" Text=" Мбит/с" FontSize="11" Foreground="{StaticResource MutedBrush}"
+                                                                       VerticalAlignment="Bottom" Margin="2,0,0,3"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Border>
+                                        </UniformGrid>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- ===== 4 МОНИТОРА: CPU / RAM / Disk / Network ===== -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- CPU Usage Monitor -->
+                                    <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource PanelBrush}"
+                                                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                                CornerRadius="18" Padding="18" Margin="0,0,7,14"
+                                                Style="{StaticResource HoverGlowStyle}">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                                <Border Width="30" Height="30" CornerRadius="14" Background="#1FFFE300" Margin="0,0,10,0">
+                                                    <Ellipse Width="9" Height="9" Fill="{StaticResource YellowBrush}">
+                                                        <Ellipse.Effect>
+                                                            <DropShadowEffect Color="#FFFFE300" BlurRadius="8" ShadowDepth="0" Opacity="0.9"/>
+                                                        </Ellipse.Effect>
+                                                    </Ellipse>
+                                                </Border>
+                                                <TextBlock x:Name="Lbl_CpuMonitor" Text="CPU Usage Monitor" Foreground="{StaticResource MutedBrush}" FontSize="11.5" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,2,0,8">
+                                                <TextBlock Text="38" FontSize="28" FontWeight="Bold" Foreground="White">
+                                                    <TextBlock.Effect>
+                                                        <DropShadowEffect Color="White" BlurRadius="14" ShadowDepth="0" Opacity="0.12"/>
+                                                    </TextBlock.Effect>
+                                                </TextBlock>
+                                                <TextBlock Text="%" FontSize="13" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Bottom" Margin="2,0,0,4"/>
+                                            </StackPanel>
+                                            <Grid Height="56">
+                                                <Path Data="M0,40 L0,25 L10,18 L20,22 L30,12 L40,20 L50,10 L60,16 L70,8 L80,14 L90,6 L100,10 L100,40 Z" Stretch="Fill">
+                                                    <Path.Fill>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                            <GradientStop Color="#55FFE300" Offset="0"/>
+                                                            <GradientStop Color="#00FFE300" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Path.Fill>
+                                                </Path>
+                                                <Path Data="M0,25 L10,18 L20,22 L30,12 L40,20 L50,10 L60,16 L70,8 L80,14 L90,6 L100,10"
+                                                          Stretch="Fill" Stroke="{StaticResource YellowBrush}" StrokeThickness="2"/>
+                                            </Grid>
+                                            <TextBlock x:Name="Lbl_AvgCpu" Text="Среднее 41%" FontSize="10" Foreground="{StaticResource Muted2Brush}" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Memory Usage Monitor -->
+                                    <Border Grid.Row="0" Grid.Column="1" Background="{StaticResource PanelBrush}"
+                                                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                                CornerRadius="18" Padding="18" Margin="7,0,0,14"
+                                                Style="{StaticResource HoverGlowStyle}">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                                <Border Width="30" Height="30" CornerRadius="14" Background="#1FFFE300" Margin="0,0,10,0">
+                                                    <Ellipse Width="9" Height="9" Fill="{StaticResource YellowBrush}">
+                                                        <Ellipse.Effect>
+                                                            <DropShadowEffect Color="#FFFFE300" BlurRadius="8" ShadowDepth="0" Opacity="0.9"/>
+                                                        </Ellipse.Effect>
+                                                    </Ellipse>
+                                                </Border>
+                                                <TextBlock x:Name="Lbl_RamMonitor" Text="Memory Usage Monitor" Foreground="{StaticResource MutedBrush}" FontSize="11.5" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,2,0,8">
+                                                <TextBlock Text="47" FontSize="28" FontWeight="Bold" Foreground="White">
+                                                    <TextBlock.Effect>
+                                                        <DropShadowEffect Color="White" BlurRadius="14" ShadowDepth="0" Opacity="0.12"/>
+                                                    </TextBlock.Effect>
+                                                </TextBlock>
+                                                <TextBlock Text="%" FontSize="13" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Bottom" Margin="2,0,0,4"/>
+                                            </StackPanel>
+                                            <Grid Height="56">
+                                                <Path Data="M0,40 L0,15 L10,20 L20,14 L30,24 L40,18 L50,22 L60,16 L70,20 L80,12 L90,18 L100,14 L100,40 Z" Stretch="Fill">
+                                                    <Path.Fill>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                            <GradientStop Color="#55FFE300" Offset="0"/>
+                                                            <GradientStop Color="#00FFE300" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Path.Fill>
+                                                </Path>
+                                                <Path Data="M0,15 L10,20 L20,14 L30,24 L40,18 L50,22 L60,16 L70,20 L80,12 L90,18 L100,14"
+                                                          Stretch="Fill" Stroke="{StaticResource YellowBrush}" StrokeThickness="2"/>
+                                            </Grid>
+                                            <TextBlock x:Name="Lbl_AvgRam" Text="Среднее 45%" FontSize="10" Foreground="{StaticResource Muted2Brush}" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Disk Activity Monitor -->
+                                    <Border Grid.Row="1" Grid.Column="0" Background="{StaticResource PanelBrush}"
+                                                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                                CornerRadius="18" Padding="18" Margin="0,0,7,0"
+                                                Style="{StaticResource HoverGlowStyle}">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                                <Border Width="30" Height="30" CornerRadius="14" Background="#1FFFE300" Margin="0,0,10,0">
+                                                    <Ellipse Width="9" Height="9" Fill="{StaticResource YellowBrush}">
+                                                        <Ellipse.Effect>
+                                                            <DropShadowEffect Color="#FFFFE300" BlurRadius="8" ShadowDepth="0" Opacity="0.9"/>
+                                                        </Ellipse.Effect>
+                                                    </Ellipse>
+                                                </Border>
+                                                <TextBlock x:Name="Lbl_DiskMonitor" Text="Disk Activity Monitor" Foreground="{StaticResource MutedBrush}" FontSize="11.5" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,2,0,8">
+                                                <TextBlock Text="22" FontSize="28" FontWeight="Bold" Foreground="White">
+                                                    <TextBlock.Effect>
+                                                        <DropShadowEffect Color="White" BlurRadius="14" ShadowDepth="0" Opacity="0.12"/>
+                                                    </TextBlock.Effect>
+                                                </TextBlock>
+                                                <TextBlock Text="%" FontSize="13" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Bottom" Margin="2,0,0,4"/>
+                                            </StackPanel>
+                                            <Grid Height="56">
+                                                <Path Data="M0,40 L0,30 L10,32 L20,28 L30,10 L40,26 L50,30 L60,8 L70,28 L80,24 L90,30 L100,26 L100,40 Z" Stretch="Fill">
+                                                    <Path.Fill>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                            <GradientStop Color="#55FFE300" Offset="0"/>
+                                                            <GradientStop Color="#00FFE300" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Path.Fill>
+                                                </Path>
+                                                <Path Data="M0,30 L10,32 L20,28 L30,10 L40,26 L50,30 L60,8 L70,28 L80,24 L90,30 L100,26"
+                                                          Stretch="Fill" Stroke="{StaticResource YellowBrush}" StrokeThickness="2"/>
+                                            </Grid>
+                                            <TextBlock x:Name="Lbl_AvgDisk" Text="Среднее 19%" FontSize="10" Foreground="{StaticResource Muted2Brush}" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Network Usage Monitor -->
+                                    <Border Grid.Row="1" Grid.Column="1" Background="{StaticResource PanelBrush}"
+                                                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                                CornerRadius="18" Padding="18" Margin="7,0,0,0"
+                                                Style="{StaticResource HoverGlowStyle}">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                                <Border Width="30" Height="30" CornerRadius="14" Background="#1F39FF9E" Margin="0,0,10,0">
+                                                    <Ellipse Width="9" Height="9" Fill="{StaticResource GreenBrush}">
+                                                        <Ellipse.Effect>
+                                                            <DropShadowEffect Color="#FF39FF9E" BlurRadius="8" ShadowDepth="0" Opacity="0.9"/>
+                                                        </Ellipse.Effect>
+                                                    </Ellipse>
+                                                </Border>
+                                                <TextBlock x:Name="Lbl_NetMonitor" Text="Network Usage Monitor" Foreground="{StaticResource MutedBrush}" FontSize="11.5" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,2,0,8">
+                                                <TextBlock Text="64" FontSize="28" FontWeight="Bold" Foreground="White">
+                                                    <TextBlock.Effect>
+                                                        <DropShadowEffect Color="White" BlurRadius="14" ShadowDepth="0" Opacity="0.12"/>
+                                                    </TextBlock.Effect>
+                                                </TextBlock>
+                                                <TextBlock x:Name="Lbl_MbpsNet" Text=" Мбит/с" FontSize="13" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Bottom" Margin="2,0,0,4"/>
+                                            </StackPanel>
+                                            <Grid Height="56">
+                                                <Path Data="M0,40 L0,20 L10,12 L20,24 L30,8 L40,18 L50,26 L60,14 L70,22 L80,10 L90,16 L100,12 L100,40 Z" Stretch="Fill">
+                                                    <Path.Fill>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                            <GradientStop Color="#5539FF9E" Offset="0"/>
+                                                            <GradientStop Color="#0039FF9E" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Path.Fill>
+                                                </Path>
+                                                <Path Data="M0,20 L10,12 L20,24 L30,8 L40,18 L50,26 L60,14 L70,22 L80,10 L90,16 L100,12"
+                                                          Stretch="Fill" Stroke="{StaticResource GreenBrush}" StrokeThickness="2"/>
+                                            </Grid>
+                                            <TextBlock x:Name="Lbl_AvgNet" Text="Среднее 58 Мбит/с" FontSize="10" Foreground="{StaticResource Muted2Brush}" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>
